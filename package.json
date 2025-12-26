@@ -5,6 +5,11 @@
   "version": "0.0.1",
   "publisher": "vedant-shekhar",
   "icon": "icon1.png",
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/Vedant4857/coder-vedant"
+}
+,
   "engines": {
     "vscode": "^1.80.0"
   },
