@@ -3,10 +3,10 @@
   "displayName": "CodeCritic",
   "description": "AI powered multi-language code reviewer and fixer for VS Code. Supports C, C++, Python, JavaScript, TypeScript, HTML, CSS, Java.",
   "version": "0.0.1",
-  "publisher": "vedant-shekhar",
+  "publisher": "vedant-Shekhar",
   "icon": "icon1.png",
   "repository": {
-  "type": "git",
+  "type": "github",
   "url": "https://github.com/Vedant4857/coder-vedant"
 }
 ,
