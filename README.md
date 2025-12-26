@@ -1,6 +1,3 @@
-Absolutely. Here is a clean, professional, human-tone README with no emojis, no hype, just useful clarity. You can paste this directly.
-
----
 
 # CodeCritic — AI Powered Code Reviewer for VS Code
 

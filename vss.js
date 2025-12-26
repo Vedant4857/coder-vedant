@@ -3,23 +3,6 @@ const fs = require("fs");
 const path = require("path");
 
 // ============================
-// API KEY SETUP
-// ============================
-
-// OPTION 1 — Hardcode
-const GEMINI_API_KEY = "";
-
-// OPTION 2 — Ask if empty
-async function getApiKey() {
-  if (GEMINI_API_KEY && GEMINI_API_KEY.trim() !== "") return GEMINI_API_KEY;
-
-  return new Promise((resolve) => {
-    process.stdout.write("\nEnter Gemini API Key: ");
-    process.stdin.once("data", (data) => resolve(data.toString().trim()));
-  });
-}
-
-// ============================
 // TOOL FUNCTIONS
 // ============================
 
@@ -149,10 +132,11 @@ const writeFileTool = {
 // MAIN AI AGENT
 // ============================
 
-async function runAgent(directoryPath) {
+async function runAgent(directoryPath, apiKey) {
   try {
-    const apiKey = await getApiKey();
-    if (!apiKey) throw new Error("API key missing");
+    if (!apiKey || apiKey.trim() === "") {
+      throw new Error("Gemini API Key missing");
+    }
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -177,20 +161,19 @@ Supported Languages:
 C, C++, Python, JavaScript, TypeScript, HTML, CSS, Java
 
 Rules:
-- Identify syntax errors, logic issues, bad structure, readability problems
-- Improve naming, formatting, consistency
-- Fix broken or unsafe code
-- Keep original purpose intact
-- For HTML/CSS/JS, improve structure, remove bad practices
-- For Python, ensure readability and correctness
-- For C/C++/Java, ensure reliability and compilation correctness
+- Identify syntax errors, logic errors, inefficiency, bad structure, naming problems
+- Improve readability and maintainability
+- Preserve intent of original program
+- For HTML/CSS/JS ensure best practices
+- For Python ensure clean and readable Pythonic style
+- For C/C++/Java ensure correctness and safe coding practices
 
 Steps:
-1) Use list_files to get supported files only
-2) Read each file using read_file
-3) Review and FIX actual issues
-4) Rewrite corrected files using write_file
-5) Produce final human readable summary
+1) Use list_files to get supported files
+2) Use read_file to read content
+3) Review and FIX real problems
+4) Write fixed files back using write_file
+5) Produce a human readable summary
 
 Summary Format:
 
@@ -199,7 +182,7 @@ CODE REVIEW COMPLETE
 Total Files Analyzed: X
 Files Fixed: Y
 
-List each file, what was wrong, and what improvements were made.
+Then list file names and describe the improvements in each.
 `,
           tools: [{
             functionDeclarations: [listFilesTool, readFileTool, writeFileTool]

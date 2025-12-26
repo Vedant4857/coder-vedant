@@ -1,25 +1,27 @@
 {
   "name": "codecritic",
   "displayName": "CodeCritic",
-  "description": "CodeCritic is your personal AI code reviewer inside VS Code. It scans your code, understands context, highlights mistakes, explains why they matter, and suggests cleaner, safer, and more efficient alternatives.",
+  "description": "AI powered multi-language code reviewer and fixer for VS Code. Supports C, C++, Python, JavaScript, TypeScript, HTML, CSS, Java.",
   "version": "0.0.1",
-  "publisher": "vedantshekhar",
-  "icon": "icon.png",
+  "publisher": "vedant-shekhar",
+  "icon": "icon1.png",
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
+    "Programming Languages",
+    "Linters",
     "Other"
   ],
   "main": "./extension.js",
   "activationEvents": [
-    "onCommand:aiReviewer.run"
+    "onCommand:codecritic.runReview"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "aiReviewer.run",
-        "title": "Run AI Code Review"
+        "command": "codecritic.runReview",
+        "title": "CodeCritic: Run AI Code Review"
       }
     ]
   },
@@ -37,7 +39,6 @@
     "eslint": "^9.39.1"
   },
   "dependencies": {
-    "@google/genai": "^1.34.0",
-    "dotenv": "^17.2.3"
+    "@google/genai": "^1.34.0"
   }
 }
