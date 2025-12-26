@@ -1,89 +1,120 @@
 const { GoogleGenAI, Type } = require("@google/genai");
 const fs = require("fs");
 const path = require("path");
-require("dotenv").config({ path: __dirname + "/.env" });
 
+// ============================
+// API KEY SETUP
+// ============================
 
+// OPTION 1 — Hardcode
+const GEMINI_API_KEY = "";
 
-// npm i fs
-//  npm i path
+// OPTION 2 — Ask if empty
+async function getApiKey() {
+  if (GEMINI_API_KEY && GEMINI_API_KEY.trim() !== "") return GEMINI_API_KEY;
 
-const ai = new GoogleGenAI({});
+  return new Promise((resolve) => {
+    process.stdout.write("\nEnter Gemini API Key: ");
+    process.stdin.once("data", (data) => resolve(data.toString().trim()));
+  });
+}
 
-// ============================================
+// ============================
 // TOOL FUNCTIONS
-// ============================================
+// ============================
 
 async function listFiles({ directory }) {
-  const files = [];
-  const extensions = ['.cpp'];
-  
-  function scan(dir) {
-    const items = fs.readdirSync(dir);
-    
-    for (const item of items) {
-      const fullPath = path.join(dir, item);
-      
-      // Skip node_modules, dist, build
-      if (fullPath.includes('vscode') || 
-          fullPath.includes('venv') || 
-          fullPath.includes('git')) continue;
-      
-      const stat = fs.statSync(fullPath);
-      
-      if (stat.isDirectory()) {
-        scan(fullPath);
-      } else if (stat.isFile()) {
-        const ext = path.extname(item);
-        if (extensions.includes(ext)) {
-          files.push(fullPath);
+  try {
+    const files = [];
+
+    const supportedExtensions = [
+      ".cpp",
+      ".c",
+      ".py",
+      ".html",
+      ".js",
+      ".css",
+      ".java",
+      ".ts"
+    ];
+
+    function scan(dir) {
+      const items = fs.readdirSync(dir);
+
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+
+        const banned = ["node_modules", ".git", ".vscode", "build", "dist", "venv"];
+        if (banned.some(b => fullPath.includes(path.sep + b + path.sep))) continue;
+
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+          scan(fullPath);
+        } else if (stat.isFile()) {
+          const ext = path.extname(item);
+          if (supportedExtensions.includes(ext)) files.push(fullPath);
         }
       }
     }
+
+    scan(directory);
+    console.log(`Found ${files.length} files`);
+    return { files };
+
+  } catch (err) {
+    console.error("Error scanning files:", err.message);
+    return { files: [], error: err.message };
   }
-  
-  scan(directory);
-  console.log(`Found ${files.length} files`);
-  return { files };
 }
 
-
 async function readFile({ file_path }) {
-  const content = fs.readFileSync(file_path, 'utf-8');
-  console.log(`Reading: ${file_path}`);
-  return { content };
+  try {
+    if (!fs.existsSync(file_path)) throw new Error("File does not exist");
+
+    const content = fs.readFileSync(file_path, "utf-8");
+    console.log(`Reading: ${file_path}`);
+    return { content };
+
+  } catch (err) {
+    console.error("Error reading file:", file_path, err.message);
+    return { content: "", error: err.message };
+  }
 }
 
 async function writeFile({ file_path, content }) {
-  fs.writeFileSync(file_path, content, 'utf-8');
-  console.log(`✍️  Fixed: ${file_path}`);
-  return { success: true };
+  try {
+    fs.writeFileSync(file_path, content, "utf-8");
+    console.log(`Fixed: ${file_path}`);
+    return { success: true };
+
+  } catch (err) {
+    console.error("Error writing file:", file_path, err.message);
+    return { success: false, error: err.message };
+  }
 }
 
-// ============================================
+// ============================
 // TOOL REGISTRY
-// ============================================
+// ============================
 
 const tools = {
-  'list_files': listFiles,
-  'read_file': readFile,
-  'write_file': writeFile
+  list_files: listFiles,
+  read_file: readFile,
+  write_file: writeFile
 };
 
-// ============================================
+// ============================
 // TOOL DECLARATIONS
-// ============================================
+// ============================
 
 const listFilesTool = {
   name: "list_files",
-  description: "Get all C++ files in a directory",
+  description: "Get supported files from directory",
   parameters: {
     type: Type.OBJECT,
     properties: {
-      directory: {
-        type: Type.STRING,
-        description: "Directory path to scan"
-      }
+      directory: { type: Type.STRING }
     },
     required: ["directory"]
   }
@@ -91,14 +122,11 @@ const listFilesTool = {
 
 const readFileTool = {
   name: "read_file",
-  description: "Read a file's content",
+  description: "Read file content",
   parameters: {
     type: Type.OBJECT,
     properties: {
-      file_path: {
-        type: Type.STRING,
-        description: "Path to the file"
-      }
+      file_path: { type: Type.STRING }
     },
     required: ["file_path"]
   }
@@ -106,118 +134,117 @@ const readFileTool = {
 
 const writeFileTool = {
   name: "write_file",
-  description: "Write fixed content back to a file",
+  description: "Write corrected file code",
   parameters: {
     type: Type.OBJECT,
     properties: {
-      file_path: {
-        type: Type.STRING,
-        description: "Path to the file to write"
-      },
-      content: {
-        type: Type.STRING,
-        description: "The fixed/corrected content"
-      }
+      file_path: { type: Type.STRING },
+      content: { type: Type.STRING }
     },
     required: ["file_path", "content"]
   }
 };
 
-// ============================================
-// MAIN FUNCTION
-// ============================================
+// ============================
+// MAIN AI AGENT
+// ============================
 
 async function runAgent(directoryPath) {
-  console.log(`🔍 Reviewing: ${directoryPath}\n`);
+  try {
+    const apiKey = await getApiKey();
+    if (!apiKey) throw new Error("API key missing");
 
-  const History = [{
-    role: 'user',
-    parts: [{ text: `Review and fix all C++ code in: ${directoryPath}` }]
-  }];
-  
-  let finalSummary = "";
+    const ai = new GoogleGenAI({ apiKey });
 
-  while (true) {
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: History,
-      config: {
-        systemInstruction: `Your Job : you are a code reviewer for my cpp files and fixer
+    console.log(`\nReviewing: ${directoryPath}`);
 
-STEPS you will follow:
-1. Use list_files to get only the c++ files from the directory and nothing else.
-2.You will use the read_file tool to read the c++ code from the files
-3.Now crucial step in this step you will analyze the each files codes
-C++ Issues:
-Now you will find all the bugs in the code in the files 
-And if you find the it you will fix it.
-Fix any errors, syntax errors, Wrong code, bad naming,
-wrong concept behind it , fix the spaces , make the code right 
-which can run properly and give satisfying results according to the goals.
-Make the code look more professional.
+    const History = [{
+      role: "user",
+      parts: [{ text: `Review and fix all supported language files in: ${directoryPath}` }]
+    }];
 
-4. Use write_file to FIX the issues you found (write corrected code back)
-5. After fixing all files, respond with a summary report in TEXT format
+    let finalSummary = "";
 
-**Summary Report Format:**
-📊 CODE REVIEW COMPLETE
+    while (true) {
+      const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: History,
+        config: {
+          systemInstruction: `
+You are a professional code reviewer and fixer.
+
+Supported Languages:
+C, C++, Python, JavaScript, TypeScript, HTML, CSS, Java
+
+Rules:
+- Identify syntax errors, logic issues, bad structure, readability problems
+- Improve naming, formatting, consistency
+- Fix broken or unsafe code
+- Keep original purpose intact
+- For HTML/CSS/JS, improve structure, remove bad practices
+- For Python, ensure readability and correctness
+- For C/C++/Java, ensure reliability and compilation correctness
+
+Steps:
+1) Use list_files to get supported files only
+2) Read each file using read_file
+3) Review and FIX actual issues
+4) Rewrite corrected files using write_file
+5) Produce final human readable summary
+
+Summary Format:
+
+CODE REVIEW COMPLETE
 
 Total Files Analyzed: X
 Files Fixed: Y
 
-And after that you will give me the files you fixed with what different things you fixed in that files
-and will give improvements you have done.
-
-Be practical and focus on real issues. Actually FIX the code, don't just report.`,
-        tools: [{
-          functionDeclarations: [listFilesTool, readFileTool, writeFileTool]
-        }]
-      }
-    });
-
-    // Process ALL function calls at once
-    if (result.functionCalls?.length > 0) {
-      
-      // Execute all function calls
-      for (const functionCall of result.functionCalls) {
-        const { name, args } = functionCall;
-        
-        console.log(`📌 ${name}`);
-        const toolResponse = await tools[name](args);
-
-        // Add function call to history
-        History.push({
-          role: "model",
-          parts: [{ functionCall }]
-        });
-
-        // Add function response to history
-        History.push({
-          role: "user",
-          parts: [{
-            functionResponse: {
-              name,
-              response: { result: toolResponse }
-            }
+List each file, what was wrong, and what improvements were made.
+`,
+          tools: [{
+            functionDeclarations: [listFilesTool, readFileTool, writeFileTool]
           }]
-        });
+        }
+      });
+
+      if (result.functionCalls?.length > 0) {
+        for (const call of result.functionCalls) {
+          const { name, args } = call;
+
+          console.log("Running tool:", name);
+
+          let response;
+          try {
+            response = await tools[name](args);
+          } catch (toolErr) {
+            response = { error: toolErr.message };
+          }
+
+          History.push({ role: "model", parts: [{ functionCall: call }] });
+
+          History.push({
+            role: "user",
+            parts: [{
+              functionResponse: {
+                name,
+                response: { result: response }
+              }
+            }]
+          });
+        }
+      } else {
+        finalSummary = result.text;
+        console.log("\n" + finalSummary);
+        break;
       }
-      
-    } else {
-      console.log('\n' + result.text);
-      finalSummary = result.text;
-      break;
     }
+
+    return finalSummary;
+
+  } catch (err) {
+    console.error("Agent crashed:", err.message);
+    return "Code Review Failed: " + err.message;
   }
-
-
-  return finalSummary;
-
 }
+
 module.exports = { runAgent };
-
-// node vss.js ../DS
-
-// const directory = process.argv[2] || '.';
-
-// await runAgent(directory);

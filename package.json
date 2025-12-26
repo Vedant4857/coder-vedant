@@ -1,12 +1,12 @@
 {
-  "name": "coder-vedant",
-  "displayName": "Coder Vedant",
-  "description": "Vedant will help you solve the code",
+  "name": "codecritic",
+  "displayName": "CodeCritic",
+  "description": "CodeCritic is your personal AI code reviewer inside VS Code. It scans your code, understands context, highlights mistakes, explains why they matter, and suggests cleaner, safer, and more efficient alternatives.",
   "version": "0.0.1",
-  "publisher": "coder-vedant",
+  "publisher": "vedantshekhar",
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -19,7 +19,7 @@
     "commands": [
       {
         "command": "aiReviewer.run",
-        "title": "Run AI C++ Review"
+        "title": "Run AI Code Review"
       }
     ]
   },
@@ -31,15 +31,13 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "@types/vscode": "^1.107.0",
+    "@types/vscode": "^1.80.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1"
   },
   "dependencies": {
-  "@google/genai": "^1.34.0",
-  "dotenv": "^17.2.3"
-}
-
-
+    "@google/genai": "^1.34.0",
+    "dotenv": "^17.2.3"
+  }
 }
