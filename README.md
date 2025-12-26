@@ -1,88 +1,128 @@
 
-# CodeCritic — AI Powered Code Reviewer for VS Code
 
-CodeCritic is your personal AI assistant for reviewing code inside Visual Studio Code.
-It analyzes your code, understands context, explains issues clearly, and suggests meaningful fixes so you can write cleaner, faster, and more reliable code without leaving your editor.
+# CodeCritic – AI Code Reviewer for Visual Studio Code
 
----
+CodeCritic is an AI-powered code review assistant for Visual Studio Code.
+It helps you review code, detect issues, improve structure, and understand logic with clear explanations — without leaving your editor.
 
-## Features
-
-* Smart Code Review
-  Provides detailed analysis rather than generic warnings.
-
-* AI-Powered Suggestions
-  Suggests cleaner, safer, and more readable improvements.
-
-* Practical and Educational
-  Explains what is wrong, why it matters, and how to fix it.
-
-* Focused and On-Demand
-  You choose when to review instead of being constantly interrupted.
+Whether you are learning, debugging, or refining production code, CodeCritic acts like a supportive senior developer guiding you.
 
 ---
 
-## How to Use
+## What CodeCritic Does
 
-1. Install CodeCritic in Visual Studio Code
-2. Open a file or code block
-3. Open the Command Palette and run
-   `CodeCritic: Review Code`
-4. Wait briefly while CodeCritic analyzes the file
-5. Review the feedback and suggested improvements
+CodeCritic helps you by:
+
+* Reviewing your code using AI
+* Detecting mistakes, risks, and poor practices
+* Suggesting better and cleaner coding approaches
+* Explaining what code actually does
+* Recommending refactoring and optimization
+* Supporting multiple programming languages
+
+Useful for:
+
+* Students learning to code
+* Developers improving quality
+* Teams wanting instant feedback
+* Anyone who wants smarter coding assistance
 
 ---
 
-## What CodeCritic Helps With
+## Installing CodeCritic
 
-* Understanding and improving complex logic
-* Making code clearer and easier to maintain
-* Reducing bugs before they become problems
-* Learning better coding practices over time
-* Speeding up development and review workflows
+1. Open Visual Studio Code
+2. Go to the Extensions tab
+3. Search for
+
+```
+CodeCritic
+```
+
+4. Click **Install**
+5. Reload VS Code if required
+
+That’s it. CodeCritic is ready.
+
+---
+
+## How to Use CodeCritic (Step-by-Step)
+
+1. Open any file in VS Code
+2. Select the code you want to review or understand
+3. Right-click the selected code
+4. Click
+   **CodeCritic → Review Code**
+
+Alternatively, you can:
+
+* Open Command Palette (Ctrl + Shift + P)
+* Type:
+  `CodeCritic`
+* Choose the desired action
+
+CodeCritic will then analyze the selected code and show results such as:
+
+* What is wrong
+* Why it matters
+* How to fix or improve it
+
+Simple. Instant. Helpful.
+
+---
+
+## Available Commands
+
+CodeCritic currently includes:
+
+**CodeCritic: Review Code**
+Analyzes selected code and lists issues along with suggestions.
+
+**CodeCritic: Explain Code**
+Explains what the selected code is doing in simple language.
+
+**CodeCritic: Suggest Improvements**
+Provides refactoring and optimization recommendations.
+
+Accessible from:
+
+* Command Palette
+* Right-click menu
+* Custom shortcuts if configured
 
 ---
 
 ## Requirements
 
-If your extension needs an API key, account, or dependency, describe it here.
-If not, simply state:
-
-No additional setup is required.
-
----
-
-## Extension Settings
-
-If your extension supports user settings, list them here in the future.
-If not, you may remove this section.
+* Visual Studio Code (latest recommended)
+* Internet connection if AI features are enabled
+* API key if your version of the extension requires one
 
 ---
 
-## Supported Languages
+## Security and Privacy
 
-If AI-powered, you can state:
-
-CodeCritic works with any programming language supported in Visual Studio Code.
-
-Or list specific supported languages if you want to be precise.
+CodeCritic processes code only for review and assistance purposes.
+There is no unnecessary data storage or hidden tracking.
 
 ---
 
 ## Release Notes
 
-### 0.0.1
+### Version 1.0.0
 
-* Initial release of CodeCritic
-* AI powered code review
-* Explanation-based feedback
-* Visual Studio Code integration
-
----
-
-## Feedback and Contributions
-
-If you host this on GitHub, add the link and invite users to report issues or contribute improvements.
+* Initial public release
+* AI-powered code review
+* Code explanation support
+* Code improvement suggestions
 
 ---
 
+## Feedback and Support
+
+Suggestions, feature requests, or problems?
+Please share feedback via the project repository or support contact.
+
+---
+
+**CodeCritic helps you code better, understand deeper, and build confidently.**
