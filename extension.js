@@ -1,36 +1,76 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const { runAgent } = require("./vss.js");
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-
-/**
- * @param {vscode.ExtensionContext} context
- */
 function activate(context) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "coder-vedant" is now active!');
+	const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left
+);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('coder-vedant.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+statusBarItem.text = "$(robot) Ready for AI Review";
+statusBarItem.show();
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Coder Vedant!');
-	});
+context.subscriptions.push(statusBarItem);
+
+
+	console.log('Coder Vedant AI Reviewer is active!');
+
+	
+
+	const disposable = vscode.commands.registerCommand(
+    "aiReviewer.run",
+    async () => {
+
+        const workspace = vscode.workspace.workspaceFolders?.[0];
+        if (!workspace) {
+            vscode.window.showErrorMessage("Open a folder first.");
+            return;
+        }
+
+        const projectPath = workspace.uri.fsPath;
+
+        // STATUS START
+        statusBarItem.text = "$(sync~spin) AI Review Running…";
+        statusBarItem.show();
+
+        vscode.window.showInformationMessage("Running AI C++ Review...");
+
+        try {
+            const summary = await runAgent(projectPath);
+
+            statusBarItem.text = "$(check) AI Review Complete";
+            vscode.window.showInformationMessage("AI Review Finished!");
+
+            // show panel
+            const panel = vscode.window.createWebviewPanel(
+                "aiReview",
+                "AI C++ Code Review Report",
+                vscode.ViewColumn.Beside,
+                {}
+            );
+
+            panel.webview.html = `<pre>${summary || "Done!"}</pre>`;
+
+            // Hide after few seconds
+            setTimeout(() => {
+                statusBarItem.text = "$(robot) Ready for AI Review";
+            }, 4000);
+
+        } catch (err) {
+            statusBarItem.text = "$(error) AI Review Failed";
+            vscode.window.showErrorMessage("Review failed: " + err.message);
+
+            setTimeout(() => {
+                statusBarItem.text = "$(robot) Ready for AI Review";
+            }, 4000);
+        }
+    }
+);
+
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
 
-module.exports = {
-	activate,
-	deactivate
-}
+module.exports = { activate, deactivate };

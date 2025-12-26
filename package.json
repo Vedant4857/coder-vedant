@@ -3,19 +3,25 @@
   "displayName": "Coder Vedant",
   "description": "Vedant will help you solve the code",
   "version": "0.0.1",
+  "publisher": "coder-vedant",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.107.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:aiReviewer.run"
+  ],
   "contributes": {
-    "commands": [{
-      "command": "coder-vedant.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "aiReviewer.run",
+        "title": "Run AI C++ Review"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,11 +29,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.107.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "eslint": "^9.39.1",
+    "@types/vscode": "^1.107.0",
     "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
-  }
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.1"
+  },
+  "dependencies": {
+  "@google/genai": "^1.34.0",
+  "dotenv": "^17.2.3"
+}
+
+
 }
